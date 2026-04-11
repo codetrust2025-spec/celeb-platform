@@ -1,0 +1,18 @@
+# Root level
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Backend
+CelebBackend-main/.env
+CelebBackend-main/node_modules/
+CelebBackend-main/uploads/*.jpg
+CelebBackend-main/uploads/*.jpeg
+CelebBackend-main/uploads/*.png
+CelebBackend-main/uploads/*.webp
+CelebBackend-main/uploads/*.gif
+
+# Frontend
+CelebFrontend-master/.env
+CelebFrontend-master/node_modules/
+CelebFrontend-master/build/

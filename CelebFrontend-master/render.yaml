@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: celeb-frontend
+    env: static
+    buildCommand: npm run build
+    staticPublishPath: ./build
+    envVars:
+      - key: NODE_VERSION
+        value: 20.x
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

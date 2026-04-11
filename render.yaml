@@ -1,0 +1,44 @@
+services:
+  # ── Backend (Node/Express) ──────────────────────────────────────────────────
+  - type: web
+    name: CelebBackend-4
+    env: node
+    region: singapore
+    plan: free
+    rootDir: CelebBackend-main
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20.x
+      - key: PORT
+        value: 5000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: CLIENT_URL
+        value: https://celeb-frontend.onrender.com
+
+  # ── Frontend (React static site) ───────────────────────────────────────────
+  - type: web
+    name: celeb-frontend
+    env: static
+    region: singapore
+    plan: free
+    rootDir: CelebFrontend-master
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./build
+    envVars:
+      - key: NODE_VERSION
+        value: 20.x
+      - key: REACT_APP_API_URL
+        value: https://CelebBackend-4.onrender.com/api
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

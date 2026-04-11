@@ -1,0 +1,41 @@
+========================================
+  RENDER ENVIRONMENT VARIABLES
+  Copy these into Render Dashboard
+========================================
+
+── BACKEND SERVICE (CelebBackend-4) ──
+
+Key: MONGO_URI
+Value: mongodb+srv://CelebrityInfuencer:zWzyYKG1kkoZdYMO@cluster0.cocmt.mongodb.net/ClientData?retryWrites=true&w=majority&appName=Cluster0
+
+Key: JWT_SECRET
+Value: 134cffaec5b457e9ee4304d0787f2085d0a16d469dfb8b45c8ee2652b49f00032e1cef831da3b20d910fd234bb9af0
+
+Key: ADMIN_USERNAME
+Value: CelebrityInfuencer
+
+Key: ADMIN_PASSWORD
+Value: 8897870998s@SS
+
+Key: CLIENT_URL
+Value: https://celeb-frontend.onrender.com
+
+Key: PORT
+Value: 5000
+
+Key: NODE_VERSION
+Value: 20.x
+
+── FRONTEND SERVICE (celeb-frontend) ──
+
+Key: REACT_APP_API_URL
+Value: https://CelebBackend-4.onrender.com/api
+
+Key: NODE_VERSION
+Value: 20.x
+
+========================================
+  MONGODB ATLAS - NETWORK ACCESS
+  Add this IP to allow Render to connect:
+  0.0.0.0/0  (Allow from anywhere)
+========================================
