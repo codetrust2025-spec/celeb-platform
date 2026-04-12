@@ -178,6 +178,22 @@ router.post('/celebrity/availability', protect, async (req, res) => {
   }
 })
 
+// ── Remove Availability Date ──────────────────────────────────────────────────
+router.delete('/celebrity/availability', protect, async (req, res) => {
+  try {
+    if (req.userRole !== 'celebrity') return res.status(403).json({ message: 'Celebrity access required' })
+    const { date } = req.body
+    if (!date) return res.status(400).json({ message: 'Date is required' })
+    const celeb = await Celebrity.findById(req.userId)
+    if (!celeb) return res.status(404).json({ message: 'Celebrity not found' })
+    celeb.availability = (celeb.availability || []).filter(d => d !== date)
+    await celeb.save()
+    res.json(celeb.availability)
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+})
+
 // ── Celebrity Profile Update ──────────────────────────────────────────────────
 router.put('/celebrity/profile', protect, upload.array('images', 5), async (req, res) => {
   try {

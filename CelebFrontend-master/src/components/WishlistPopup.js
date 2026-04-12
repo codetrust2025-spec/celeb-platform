@@ -1,45 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button, Grid, Typography, Box, CircularProgress } from '@mui/material';
 import { Delete } from '@mui/icons-material';
 import { showToast } from '../utils/toastUtility';
-import { buildFileURL } from '../utils/fileUrl';
+import ImageCycler from './ImageCycler';
 
-// Reusable CSS cross-fade cycler — no react-slick, no layout measurement issues
-const ImageCycler = ({ images, alt, height = 200 }) => {
-  const [active, setActive] = useState(0);
-  const timerRef = useRef(null);
-
-  useEffect(() => {
-    if (images.length <= 1) return;
-    timerRef.current = setInterval(() => {
-      setActive(prev => (prev + 1) % images.length);
-    }, 2000);
-    return () => clearInterval(timerRef.current);
-  }, [images.length]);
-
-  return (
-    <Box sx={{ position: 'relative', width: '100%', height, borderRadius: '8px', overflow: 'hidden' }}>
-      {images.map((url, i) => (
-        <Box
-          key={url + i}
-          component="img"
-          src={buildFileURL(url)}
-          alt={i === 0 ? alt : ''}
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            opacity: i === active ? 1 : 0,
-            transition: 'opacity 0.6s ease',
-          }}
-        />
-      ))}
-    </Box>
-  );
-};
-
+// Reusable CSS cross-fade cycler — imported from shared component
 const WishlistPopup = ({ isPopupOpen, wishlist, handleRemoveClick, closePopup }) => {
   const [loadingId, setLoadingId] = useState(null);
 
@@ -81,7 +46,7 @@ const WishlistPopup = ({ isPopupOpen, wishlist, handleRemoveClick, closePopup })
                     '&:hover': { transform: 'translateY(-6px)' }
                   }}>
                     {images.length > 0
-                      ? <ImageCycler images={images} alt={celebrity.name} height={200} />
+                      ? <ImageCycler images={images} alt={celebrity.name} height={200} interval={2000} />
                       : <Box sx={{ height: 200, bgcolor: '#333', borderRadius: '8px', display: 'grid', placeItems: 'center' }}>
                           <Typography variant="body2" sx={{ color: '#FFD700' }}>No images</Typography>
                         </Box>

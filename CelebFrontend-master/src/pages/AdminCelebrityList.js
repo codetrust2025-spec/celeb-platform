@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Box,
   Card,
@@ -25,27 +25,7 @@ import SearchBar from '../components/SearchBar'
 import { useDispatch, useSelector } from 'react-redux'
 import { setCelebrities, setLoading, setError } from '../redux/reducers/celebrityReducer'
 import { showToast, createButtonStyles } from '../utils/toastUtility'
-import { buildFileURL } from '../utils/fileUrl'
-
-// CSS cross-fade cycler — no react-slick layout issues
-const ImageCycler = ({ images, alt, height = 320 }) => {
-  const [active, setActive] = useState(0)
-  const timerRef = useRef(null)
-  useEffect(() => {
-    if (images.length <= 1) return
-    timerRef.current = setInterval(() => setActive(p => (p + 1) % images.length), 2000)
-    return () => clearInterval(timerRef.current)
-  }, [images.length])
-  return (
-    <Box sx={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-      {images.map((url, i) => (
-        <Box key={url + i} component="img" src={buildFileURL(url)} alt={i === 0 ? alt : ''}
-          sx={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
-            filter: 'brightness(0.82)', opacity: i === active ? 1 : 0, transition: 'opacity 0.6s ease' }} />
-      ))}
-    </Box>
-  )
-}
+import ImageCycler from '../components/ImageCycler'
 
 const AdminCelebrityList = () => {
   const celebrities = useSelector((state) => state.celebrity.celebrities)
@@ -292,7 +272,19 @@ const AdminCelebrityList = () => {
                       ? celebrity.imageUrls
                       : celebrity.imageUrl ? [celebrity.imageUrl] : []
                     return imgs.length > 0
-                      ? <ImageCycler images={imgs} alt={celebrity.name} height={320} />
+                      ? (
+                        <Box sx={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+                          <ImageCycler
+                            images={imgs}
+                            alt={celebrity.name}
+                            interval={2000}
+                            sx={{
+                              position: 'absolute', inset: 0,
+                              '& img': { filter: 'brightness(0.82)' }
+                            }}
+                          />
+                        </Box>
+                      )
                       : <Box sx={{ position: 'absolute', inset: 0, bgcolor: '#333' }} />
                   })()}
 

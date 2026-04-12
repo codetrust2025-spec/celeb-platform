@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React from 'react'
 import {
   Card,
   Typography,
@@ -16,7 +16,7 @@ import {
 } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
 import { showToast } from '../utils/toastUtility'
-import { buildFileURL } from '../utils/fileUrl'
+import ImageCycler from './ImageCycler'
 
 const CARD_HEIGHT = 430
 
@@ -33,45 +33,6 @@ const singularCategoryLabel = s => {
   const word = String(s).trim().toLowerCase()
   const base = word.endsWith('s') ? word.slice(0, -1) : word
   return base.replace(/^\w/, c => c.toUpperCase())
-}
-
-/**
- * CSS cross-fade image cycler — no react-slick, no JS layout measurement.
- * All images are position:absolute so they always fill the parent.
- */
-const ImageCycler = ({ images, alt }) => {
-  const [active, setActive] = useState(0)
-  const timerRef = useRef(null)
-
-  useEffect(() => {
-    if (images.length <= 1) return
-    timerRef.current = setInterval(() => {
-      setActive(prev => (prev + 1) % images.length)
-    }, 2500)
-    return () => clearInterval(timerRef.current)
-  }, [images.length])
-
-  return (
-    <>
-      {images.map((url, i) => (
-        <Box
-          key={url + i}
-          component="img"
-          src={buildFileURL(url)}
-          alt={i === 0 ? alt : ''}
-          sx={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            opacity: i === active ? 1 : 0,
-            transition: 'opacity 0.7s ease',
-          }}
-        />
-      ))}
-    </>
-  )
 }
 
 /**
@@ -131,7 +92,7 @@ const CelebrityCard = ({ celebrity, wishlist, handleWishlistToggle }) => {
     >
       {/* Images */}
       {imageList.length > 0
-        ? <ImageCycler images={imageList} alt={celebrity.name} />
+        ? <ImageCycler images={imageList} alt={celebrity.name} interval={2500} />
         : <Box sx={{ position: 'absolute', inset: 0, bgcolor: '#333' }} />
       }
 

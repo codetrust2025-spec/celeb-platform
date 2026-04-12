@@ -64,16 +64,8 @@ export const updateBooking = async (bookingId, updatedData) => {
   }
 }
 
-export const adminGetBookings = async () => {
-  try {
-    const response = await axios.get('/bookings')
-    if (Array.isArray(response.data)) return response.data
-    return response.data.bookings || []
-  } catch (error) {
-    console.error('Error fetching bookings:', error)
-    return []
-  }
-}
+// adminGetBookings is an alias for getBookings — same endpoint, role-filtered server-side
+export { getBookings as adminGetBookings }
 
 export const deleteCelebrity = async celebrityId => {
   try {
@@ -280,6 +272,16 @@ export const updateAvailability = async date => {
     return response.data
   } catch (error) {
     console.error('Error updating availability:', error)
+    throw error
+  }
+}
+
+export const removeAvailability = async date => {
+  try {
+    const response = await axios.delete('/celebrity/availability', { data: { date } })
+    return response.data
+  } catch (error) {
+    console.error('Error removing availability:', error)
     throw error
   }
 }

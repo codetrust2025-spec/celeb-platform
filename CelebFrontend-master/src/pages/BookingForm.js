@@ -21,12 +21,11 @@ import { TimePicker } from '@mui/x-date-pickers/TimePicker'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { showToast } from '../utils/toastUtility'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { fetchBookingsStart, fetchBookingsSuccess, fetchBookingsFailure } from '../redux/reducers/bookingReducer'
 
 const BookingForm = () => {
   const dispatch = useDispatch()
-  const bookingsData = useSelector(state => state.bookings.bookings)
   const location = useLocation()
   const navigate = useNavigate()
   const { isUpdate, bookingId, celebrity } = location.state || {}
@@ -42,38 +41,35 @@ const BookingForm = () => {
   })
   const [openDialog, setOpenDialog] = useState(false)
 
+  // For update mode: fetch only the single booking by ID instead of all bookings
   useEffect(() => {
-    if (!celebrity) return
-    const fetchBookingsData = async () => {
-        dispatch(fetchBookingsStart())
-        try {
-          const data = await getBookings()
-          dispatch(fetchBookingsSuccess(data))
-        } catch (error) {
-          dispatch(fetchBookingsFailure('Error fetching bookings.'))
+    if (!isUpdate || !bookingId) return
+    const fetchSingleBooking = async () => {
+      dispatch(fetchBookingsStart())
+      try {
+        const data = await getBookings()
+        dispatch(fetchBookingsSuccess(data))
+        const existing = data.find(b => b._id === bookingId)
+        if (existing) {
+          setFormData({
+            name: existing.name || '',
+            contact: existing.contact || '',
+            eventType: existing.eventType || '',
+            eventDate: existing.eventDate ? existing.eventDate.split('T')[0] : '',
+            eventLocation: existing.eventLocation || '',
+            eventTime: existing.eventTime ? new Date(existing.eventTime) : null,
+            otherEventType: existing.eventType === 'Others' ? existing.otherEventType || '' : ''
+          })
+        } else {
+          showToast('Booking not found.', 'error')
         }
+      } catch (error) {
+        dispatch(fetchBookingsFailure('Error fetching booking.'))
+        showToast('Error loading booking details.', 'error')
       }
-    fetchBookingsData()
-  }, [dispatch, celebrity])
-
-  useEffect(() => {
-    if (isUpdate && bookingsData.length > 0 && bookingId) {
-      const existingBooking = bookingsData.find(booking => booking._id === bookingId)
-      if (existingBooking) {
-        setFormData({
-          name: existingBooking.name || '',
-          contact: existingBooking.contact || '',
-          eventType: existingBooking.eventType || '',
-          eventDate: existingBooking.eventDate ? existingBooking.eventDate.split('T')[0] : '',
-          eventLocation: existingBooking.eventLocation || '',
-          eventTime: existingBooking.eventTime ? new Date(existingBooking.eventTime) : null,
-          otherEventType: existingBooking.eventType === 'Others' ? existingBooking.otherEventType || '' : ''
-        })
-      }
-    } else if (isUpdate && !bookingId) {
-      showToast('Booking ID is missing!', 'error')
     }
-  }, [isUpdate, bookingsData, bookingId])
+    fetchSingleBooking()
+  }, [isUpdate, bookingId, dispatch])
 
   if (!celebrity) return <div style={{ padding: 40, textAlign: 'center' }}>No celebrity selected. Please go back and choose a celebrity.</div>
 
@@ -82,7 +78,13 @@ const BookingForm = () => {
 
   const handleSubmit = async e => {
     e.preventDefault()
-    const userProfile = JSON.parse(sessionStorage.getItem('userProfile'))
+    const userProfile = JSON.parse(sessionStorage.getItem('userProfile') || 'null')
+    const userId = userProfile?.id || userProfile?._id
+    if (!userId) {
+      showToast('You must be logged in to book.', 'error')
+      navigate('/userLogin', { state: { celebrity } })
+      return
+    }
     const resolvedEventType = formData.eventType === 'Others' && formData.otherEventType
       ? formData.otherEventType
       : formData.eventType
@@ -93,7 +95,7 @@ const BookingForm = () => {
       eventDate: formData.eventDate,
       eventLocation: formData.eventLocation,
       celebrityId: celebrity._id,
-      userId: userProfile?.id || userProfile?._id || 'guest',
+      userId,
       eventTime: formData.eventTime ? (formData.eventTime instanceof Date ? formData.eventTime.toISOString() : formData.eventTime) : null
     }
     try {

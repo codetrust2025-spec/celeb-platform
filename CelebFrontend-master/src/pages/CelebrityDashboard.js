@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Box, Button, Typography, Avatar, Grid, Card, CardContent, IconButton, TextField } from '@mui/material'
 import { AccountCircle, CalendarMonth, Edit, Notifications } from '@mui/icons-material'
 import { useNavigate } from 'react-router-dom'
-import { getCelebrityProfile, getBookings, getAvailability, updateAvailability } from '../api'
+import { getCelebrityProfile, getBookings, getAvailability, updateAvailability, removeAvailability } from '../api'
 import { styled } from '@mui/system'
 import { showToast } from '../utils/toastUtility'
 
@@ -57,6 +57,16 @@ const CelebrityDashboard = () => {
       showToast('Availability updated!', 'success')
     } catch (error) {
       showToast('Error updating availability', 'error')
+    }
+  }
+
+  const handleRemoveAvailability = async (date) => {
+    try {
+      await removeAvailability(date)
+      setAvailability(prev => prev.filter(d => d !== date))
+      showToast('Date removed', 'success')
+    } catch {
+      showToast('Error removing date', 'error')
     }
   }
 
@@ -126,8 +136,16 @@ const CelebrityDashboard = () => {
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {availability.length === 0 && <Typography variant="body2" sx={{ color: '#bbb' }}>No availability set.</Typography>}
                 {availability.map((date, i) => (
-                  <Box key={i} sx={{ px: 2, py: 0.5, backgroundColor: '#444', borderRadius: '8px' }}>
+                  <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 0.5, px: 1.5, py: 0.5, backgroundColor: '#444', borderRadius: '8px' }}>
                     <Typography variant="body2" sx={{ color: '#f0a500' }}>{date}</Typography>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleRemoveAvailability(date)}
+                      sx={{ color: '#f44336', p: 0.25, '&:hover': { color: '#ff6659' } }}
+                      aria-label={`Remove ${date}`}
+                    >
+                      <span style={{ fontSize: 14, lineHeight: 1 }}>✕</span>
+                    </IconButton>
                   </Box>
                 ))}
               </Box>

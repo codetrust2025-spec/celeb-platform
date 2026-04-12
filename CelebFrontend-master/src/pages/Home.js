@@ -240,9 +240,7 @@ const Home = () => {
           case 'name-desc': return b.name.localeCompare(a.name)
           case 'price-asc': return (a.price || 0) - (b.price || 0)
           case 'price-desc': return (b.price || 0) - (a.price || 0)
-          case 'rating-desc': return (b.rating || 0) - (a.rating || 0)
           case 'newest-first': return new Date(b.createdAt) - new Date(a.createdAt)
-          case 'popular-first': return (b.popularity || 0) - (a.popularity || 0)
           default: return 0
         }
       })
@@ -339,9 +337,7 @@ const Home = () => {
               <MenuItemStyled value="name-desc">Name (Z–A)</MenuItemStyled>
               <MenuItemStyled value="price-asc">Price (Low → High)</MenuItemStyled>
               <MenuItemStyled value="price-desc">Price (High → Low)</MenuItemStyled>
-              <MenuItemStyled value="rating-desc">Rating (High → Low)</MenuItemStyled>
               <MenuItemStyled value="newest-first">Newest First</MenuItemStyled>
-              <MenuItemStyled value="popular-first">Most Popular</MenuItemStyled>
             </SelectStyled>
           </SelectWrapper>
 

@@ -17,8 +17,8 @@ import Home from './pages/Home'
 import CelebrityDashboard from './pages/CelebrityDashboard'
 import CelebrityPortfolio from './pages/CelebrityPortfolio'
 import CelebritySettings from './pages/CelebritySettings'
-import ViewBookings from './pages/ViewBookings'
 import ProtectedRoute from './components/ProtectedRoute'
+import NotFound from './pages/NotFound'
 import 'react-toastify/dist/ReactToastify.css'
 import RegisterAndLoginPrompt from './auth/RegisterAndLoginPrompt'
 
@@ -58,10 +58,6 @@ function App() {
               <Route path='/add-celebrity' element={
                 <ProtectedRoute role='admin'><AddCelebrity /></ProtectedRoute>
               } />
-              <Route path='/view-bookings' element={
-                <ProtectedRoute role='admin'><ViewBookings /></ProtectedRoute>
-              } />
-
               {/* Celebrity protected routes */}
               <Route path='/celebrityDashboard' element={
                 <ProtectedRoute role='celebrity'><CelebrityDashboard /></ProtectedRoute>
@@ -72,6 +68,9 @@ function App() {
               <Route path='/celebrity-settings' element={
                 <ProtectedRoute role='celebrity'><CelebritySettings /></ProtectedRoute>
               } />
+
+              {/* 404 catch-all */}
+              <Route path='*' element={<NotFound />} />
             </Routes>
           </div>
           <Footer />

@@ -1,29 +1,57 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Box, Typography, Button, Divider, Card, CardContent,
   TextField, Stack, CircularProgress
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { Logout, ArrowBack, Save, CloudUpload } from '@mui/icons-material'
-import { updateCelebrityProfile } from '../api'
+import { updateCelebrityProfile, getCelebrityProfile } from '../api'
 import { showToast } from '../utils/toastUtility'
 
 const CelebritySettings = () => {
   const navigate = useNavigate()
-  const profile = JSON.parse(sessionStorage.getItem('celebrityProfile') || '{}')
-
   const [form, setForm] = useState({
-    name: profile.name || '',
-    description: profile.description || '',
-    price: profile.price || '',
-    contact: profile.contact || '',
-    category: profile.category || '',
-    instagram: profile.socialLinks?.instagram || '',
-    youtube: profile.socialLinks?.youtube || '',
+    name: '',
+    description: '',
+    price: '',
+    contact: '',
+    category: '',
+    instagram: '',
+    youtube: '',
   })
+  const [profile, setProfile] = useState({})
   const [images, setImages] = useState([])
   const [previews, setPreviews] = useState([])
   const [saving, setSaving] = useState(false)
+
+  // Re-fetch profile from server on mount to avoid stale sessionStorage data
+  useEffect(() => {
+    const cached = JSON.parse(sessionStorage.getItem('celebrityProfile') || '{}')
+    setProfile(cached)
+    setForm({
+      name: cached.name || '',
+      description: cached.description || '',
+      price: cached.price || '',
+      contact: cached.contact || '',
+      category: cached.category || '',
+      instagram: cached.socialLinks?.instagram || '',
+      youtube: cached.socialLinks?.youtube || '',
+    })
+    getCelebrityProfile().then(data => {
+      if (!data) return
+      setProfile(data)
+      setForm({
+        name: data.name || '',
+        description: data.description || '',
+        price: data.price || '',
+        contact: data.contact || '',
+        category: data.category || '',
+        instagram: data.socialLinks?.instagram || '',
+        youtube: data.socialLinks?.youtube || '',
+      })
+      sessionStorage.setItem('celebrityProfile', JSON.stringify(data))
+    }).catch(() => {})
+  }, [])
 
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value })
 
@@ -125,7 +153,7 @@ const CelebritySettings = () => {
 
           <Divider sx={{ borderColor: '#333', my: 3 }} />
 
-          <Typography variant="body2" sx={{ color: '#bbb', mb: 0.5 }}>Email: {profile.email || '-'}</Typography>
+          <Typography variant="body2" sx={{ color: '#bbb', mb: 0.5 }}>Email: {profile?.email || '-'}</Typography>
 
           <Button variant="contained" color="error" startIcon={<Logout />}
             onClick={handleLogout} fullWidth sx={{ mt: 2 }}>

@@ -16,7 +16,8 @@ import {
   Stack,
   Divider,
   IconButton,
-  CircularProgress
+  CircularProgress,
+  Skeleton
 } from '@mui/material'
 import {
   ArrowBack,
@@ -165,8 +166,24 @@ const CelebrityProfile = () => {
   }, [id])
 
   if (loading) return (
-    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', bgcolor: '#0b0b0c' }}>
-      <CircularProgress sx={{ color: '#f0a500' }} />
+    <Box sx={{ minHeight: '100vh', p: { xs: 2, md: 4 }, background: '#0b0b0c' }}>
+      <Container maxWidth="lg">
+        <Skeleton variant="rectangular" width={100} height={40} sx={{ bgcolor: '#1e1e1e', borderRadius: 2, mb: 3 }} />
+        <Box sx={{ borderRadius: 4, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <Grid container>
+            <Grid item xs={12} md={6} sx={{ p: { xs: 2, md: 4 } }}>
+              <Skeleton variant="rectangular" height={400} sx={{ bgcolor: '#1e1e1e', borderRadius: 3 }} />
+            </Grid>
+            <Grid item xs={12} md={6} sx={{ p: { xs: 2, md: 4 } }}>
+              <Skeleton variant="text" height={60} sx={{ bgcolor: '#1e1e1e', mb: 2 }} />
+              <Skeleton variant="text" height={30} width="60%" sx={{ bgcolor: '#1e1e1e', mb: 2 }} />
+              <Skeleton variant="rectangular" height={100} sx={{ bgcolor: '#1e1e1e', borderRadius: 2, mb: 2 }} />
+              <Skeleton variant="text" height={30} width="40%" sx={{ bgcolor: '#1e1e1e', mb: 2 }} />
+              <Skeleton variant="rectangular" height={48} width={140} sx={{ bgcolor: '#1e1e1e', borderRadius: 2 }} />
+            </Grid>
+          </Grid>
+        </Box>
+      </Container>
     </Box>
   )
 
