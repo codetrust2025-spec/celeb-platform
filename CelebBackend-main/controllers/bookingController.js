@@ -75,13 +75,14 @@ exports.getBookings = async (req, res) => {
     const limit = parseInt(req.query.limit) || 50
     const skip = (page - 1) * limit
 
-    let filter = {}
-    if (isAdmin(req)) {
-      filter = {}
-    } else if (req.userRole === 'celebrity') {
-      filter = { celebrity: req.userId }
-    } else {
-      filter = { userId: String(req.userId) }
+    // countDocuments does not run the model's /^find/ soft-delete middleware.
+    const filter = { deletedAt: null }
+    if (!isAdmin(req)) {
+      if (req.userRole === 'celebrity') {
+        filter.celebrity = req.userId
+      } else {
+        filter.userId = String(req.userId)
+      }
     }
 
     const [bookings, total] = await Promise.all([
