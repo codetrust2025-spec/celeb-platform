@@ -85,3 +85,33 @@ test('booking creation rejects past event dates', async () => {
   assert.equal(x.res.code, 400);
   assert.equal(x.saves(), 0);
 });
+test('booking rows and pagination count exclude soft-deleted records for every role', async () => {
+  const rows = [
+    { userId: 'owner', celebrity: 'artist', deletedAt: null },
+    { userId: 'owner', celebrity: 'artist', deletedAt: new Date('2026-01-01') },
+    { userId: 'other', celebrity: 'other-artist', deletedAt: null },
+  ];
+  const matches = (row, filter) => Object.entries(filter).every(([key, value]) => row[key] === value);
+  for (const [userId, userRole, expected] of [['owner', 'user', 1], ['artist', 'celebrity', 1], ['admin', 'admin', 2]]) {
+    const exports = {};
+    const Booking = {
+      find(filter) {
+        // Simulate the current schema's /^find/ middleware; countDocuments has no such hook.
+        const selected = rows.filter(row => row.deletedAt === null && matches(row, filter));
+        return { populate() { return this; }, sort() { return this; }, skip(n) { this.offset = n; return this; }, limit(n) { return Promise.resolve(selected.slice(this.offset || 0, (this.offset || 0) + n)); } };
+      },
+      countDocuments(filter) { return Promise.resolve(rows.filter(row => matches(row, filter)).length); }
+    };
+    vm.runInNewContext(source, { exports, require(name) {
+      if (name === '../models/Booking') return Booking;
+      if (name === '../models/Celebrity') return {};
+      throw new Error(`Unexpected dependency: ${name}`);
+    } }, { filename: 'bookingController.js' });
+    const res = { code: 200, status(code) { this.code = code; return this; }, json(body) { this.body = body; return this; } };
+    await exports.getBookings({ userId, userRole, query: { limit: '1' } }, res);
+    assert.equal(res.code, 200);
+    assert.equal(res.body.bookings.length, Math.min(expected, 1));
+    assert.equal(res.body.total, expected);
+    assert.equal(res.body.pages, expected);
+  }
+});
